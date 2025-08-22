@@ -214,6 +214,7 @@
     </div>
 
     <script>
+        const BASE_API = "https://v1-fbzb.onrender.com"; // ton backend Render
         async function runCotation() {
           const scheme = (document.getElementById('codage-type').value || '').toLowerCase();
           const text = document.getElementById('texte-cotation').value || '';
@@ -232,7 +233,7 @@
 
           $status.textContent = "Codage en cours…";
           try {
-            const res = await fetch('/code', {
+            const res = await fetch(`${BASE_API}/code`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ scheme, text })
