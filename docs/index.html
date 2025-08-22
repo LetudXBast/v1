@@ -1,245 +1,316 @@
-<!-- Schéma global
-Tu cliques sur un bouton dans le front (index.html).
-Le JS envoie une requête (fetch) à ton backend (app.py).
-Flask reçoit l’appel sur /ask, /save, ou /pdf.
-Flask traite : soit appelle Mistral, soit écrit/relit QR.txt, soit génère PDF.
-Réponse envoyée au navigateur, qui met à jour l’UI. -->
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>QA Minimal</title>
-  <style>
-    :root { --gap: 12px; --radius: 12px; }
-    * { box-sizing: border-box; }
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      margin: 0; padding: 0; background: #f7f7f8; color: #111;
-    }
-    header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #e7e7ea; padding: 12px 16px; z-index: 10; }
-    header h1 { margin: 0; font-size: 18px; }
-
-    .container { max-width: 900px; margin: 0 auto; padding: 16px; }
-
-    .toolbar {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap: var(--gap);
-      margin-bottom: 16px;
-    }
-    button {
-      appearance: none; border: 1px solid #d8d8dd; background: #fff; color: #111;
-      padding: 10px 12px; border-radius: var(--radius); cursor: pointer; font-weight: 600;
-      transition: transform .02s ease, background .2s ease, border-color .2s ease;
-    }
-    button:hover { background: #fafafa; }
-    button:active { transform: translateY(1px); }
-    button[disabled] { opacity: .6; cursor: not-allowed; }
-
-    .panel { background: #fff; border: 1px solid #e7e7ea; border-radius: var(--radius); padding: 12px; }
-
-    .chat-area { display: grid; grid-template-rows: 1fr auto; gap: var(--gap); height: 60vh; }
-
-    .messages {
-      overflow: auto; padding: 8px; display: flex; flex-direction: column; gap: 8px;
-      background: #fcfcfd; border: 1px solid #eee; border-radius: var(--radius);
-    }
-    .msg { max-width: 80%; padding: 10px 12px; border-radius: 14px; border: 1px solid #e5e7eb; }
-    .msg.q { align-self: flex-start; background: #f1f5ff; border-color: #dbe5ff; }
-    .msg.a { align-self: flex-end; background: #eef8f0; border-color: #d8f0dc; }
-    .meta { font-size: 12px; color: #666; }
-
-    .inputbar { display: grid; grid-template-columns: 1fr auto; gap: var(--gap); align-items: center; }
-    .inputbar input[type="text"] {
-      width: 100%; padding: 12px 14px; border-radius: var(--radius); border: 1px solid #d8d8dd; font-size: 15px;
-    }
-
-    .status { margin-top: 10px; font-size: 14px; color: #555; min-height: 1.2em; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface Médicale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button.active {
+            border-bottom: 3px solid #1e3a8a;
+            color: #1e3a8a;
+        }
+        textarea {
+            resize: none;
+            min-height: 150px;
+        }
+        .output-box {
+            min-height: 200px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+    </style>
 </head>
-  <header>
-    <h1>Interface Q/R minimale</h1>
-  </header>
+<body class="bg-blue-50 font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="bg-white shadow-sm rounded-lg mb-8">
+            <div class="flex flex-wrap justify-between items-center p-4">
+                <h1 class="text-2xl font-bold text-blue-900">Interface Médicale</h1>
+                <nav class="mt-4 md:mt-0">
+                    <ul class="flex space-x-1 overflow-x-auto">
+                        <li>
+                            <button class="tab-button active px-4 py-2 font-medium text-gray-600 hover:text-blue-900 transition" data-tab="courrier">
+                                <i class="fas fa-envelope mr-2"></i>Courrier
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tab-button px-4 py-2 font-medium text-gray-600 hover:text-blue-900 transition" data-tab="cotation">
+                                <i class="fas fa-file-invoice-dollar mr-2"></i>Cotation
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tab-button px-4 py-2 font-medium text-gray-600 hover:text-blue-900 transition" data-tab="traitements">
+                                <i class="fas fa-pills mr-2"></i>Traitements
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tab-button px-4 py-2 font-medium text-gray-600 hover:text-blue-900 transition" data-tab="aide">
+                                <i class="fas fa-question-circle mr-2"></i>Aide médicale
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
 
-  <main class="container">
-    <section class="toolbar">
-      <button id="btnAsk">Poser une question</button>
-      <button id="btnSave">Enregistrer mes réponses</button>
-      <button id="btnPdf">Générer un PDF</button>
-      <button id="btnReset">Réinitialiser</button>
-    </section>
+        <!-- Main Content -->
+        <main class="bg-white rounded-lg shadow-sm p-6">
+            <!-- Courrier Tab -->
+            <div id="courrier" class="tab-content active">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left Side - Dropdowns -->
+                    <div class="lg:col-span-1 space-y-4">
+                        <div>
+                            <label for="specialite" class="block text-sm font-medium text-blue-900 mb-1">Spécialité</label>
+                            <select id="specialite" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Sélectionner une spécialité</option>
+                                <option value="cardiologie">Cardiologie</option>
+                                <option value="dermatologie">Dermatologie</option>
+                                <option value="neurologie">Neurologie</option>
+                                <option value="pediatrie">Pédiatrie</option>
+                                <option value="chirurgie">Chirurgie</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="type-courrier" class="block text-sm font-medium text-blue-900 mb-1">Type de courrier</label>
+                            <select id="type-courrier" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Sélectionner un type</option>
+                                <option value="consultation">Courrier de consultation</option>
+                                <option value="hospitalisation">Courrier d'hospitalisation</option>
+                                <option value="examen">Demande d'examen</option>
+                                <option value="suivi">Courrier de suivi</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Side - Text Areas -->
+                    <div class="lg:col-span-3 space-y-4">
+                        <div>
+                            <label for="contexte" class="block text-sm font-medium text-blue-900 mb-1">Contexte</label>
+                            <textarea id="contexte" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez le contexte ici..."></textarea>
+                        </div>
+                        <div>
+                            <label for="observations" class="block text-sm font-medium text-blue-900 mb-1">Observations</label>
+                            <textarea id="observations" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez vos observations ici..."></textarea>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-sm font-medium text-blue-900">Visualisation (formaté par IA)</label>
+                                <button class="copy-btn bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-800 transition">
+                                    <i class="fas fa-copy mr-1"></i>Copier
+                                </button>
+                            </div>
+                            <div class="output-box p-3 rounded-md">
+                                <p id="visualisation" class="text-gray-700">Le texte formaté apparaîtra ici après traitement par IA.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <section class="panel chat-area">
-      <div id="messages" class="messages" aria-live="polite"></div>
-      <div class="inputbar">
-        <input id="answerInput" type="text" placeholder="Votre réponse… (Entrée pour envoyer)" />
-        <button id="btnReply">Répondre</button>
-      </div>
-      <div id="status" class="status"></div>
-    </section>
-  </main>
+            <!-- Cotation Tab -->
+            <div id="cotation" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left Side - Dropdown -->
+                    <div class="lg:col-span-1">
+                        <div>
+                            <label for="codage-type" class="block text-sm font-medium text-blue-900 mb-1">Type de codage</label>
+                            <select id="codage-type" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Sélectionner un type</option>
+                                <option value="cim10">Codage CIM-10</option>
+                                <option value="ccam">Codage CCAM</option>
+                                <option value="ghm">Codage GHM</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Side - Text Areas -->
+                    <div class="lg:col-span-3 space-y-4">
+                        <div>
+                            <label for="texte-cotation" class="block text-sm font-medium text-blue-900 mb-1">Texte à coder</label>
+                            <textarea id="texte-cotation" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez le texte à coder ici..."></textarea>
+                          </div>
+                        <div class="flex items-center gap-3">
+                            <button id="btnCoder" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                            <i class="fas fa-gears mr-2"></i>Coder
+                            </button>
+                            <span id="status-cotation" class="text-sm text-gray-600"></span>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-sm font-medium text-blue-900">Résultat du codage (formaté par IA)</label>
+                                <button class="copy-btn bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-800 transition">
+                                    <i class="fas fa-copy mr-1"></i>Copier
+                                </button>
+                            </div>
+                            <div class="output-box p-3 rounded-md">
+                                <p id="resultat-cotation" class="text-gray-700">Le résultat du codage apparaîtra ici après traitement par IA.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  <script>
-  //  appeler Render
-      const BASE_API = "https://question-answer-07q9.onrender.com"; // ← remplace par ton URL Render
-// BASE_API = ton backend Render
+            <!-- Traitements Tab -->
+            <div id="traitements" class="tab-content">
+                <div class="space-y-4">
+                    <div>
+                        <label for="texte-traitement" class="block text-sm font-medium text-blue-900 mb-1">Prescription à formater</label>
+                        <textarea id="texte-traitement" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez la prescription ici..."></textarea>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-medium text-blue-900">Prescription formatée (par IA)</label>
+                            <button class="copy-btn bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-800 transition">
+                                <i class="fas fa-copy mr-1"></i>Copier
+                            </button>
+                        </div>
+                        <div class="output-box p-3 rounded-md">
+                            <p id="resultat-traitement" class="text-gray-700">La prescription formatée apparaîtra ici après traitement par IA.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    // --- État minimal côté front ---
-    /** conversation: tableau d'objets { id, question, answer } */     // ➡️ conversation = mémoire locale des Q/R
-    const conversation = [];
-    let seq = 0; // identifiant simple croissant // ➡️ seq = compteur de questions
+            <!-- Aide Médicale Tab -->
+            <div id="aide" class="tab-content">
+                <div class="space-y-4">
+                    <div>
+                        <label for="question-medicale" class="block text-sm font-medium text-blue-900 mb-1">Question médicale</label>
+                        <textarea id="question-medicale" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Décrivez votre question ou problème médical ici..."></textarea>
+                    </div>
+                    <div>
+                        <label for="contexte-medical" class="block text-sm font-medium text-blue-900 mb-1">Contexte (facultatif)</label>
+                        <textarea id="contexte-medical" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Ajoutez des détails contextuels si nécessaire..."></textarea>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-medium text-blue-900">Réponse médicale (par IA)</label>
+                            <button class="copy-btn bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-800 transition">
+                                <i class="fas fa-copy mr-1"></i>Copier
+                            </button>
+                        </div>
+                        <div class="output-box p-3 rounded-md">
+                            <p id="reponse-aide" class="text-gray-700">La réponse à votre question médicale apparaîtra ici après traitement par IA.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
 
-    // --- Helpers DOM ---
-    const el = (id) => document.getElementById(id);
-    const $messages = el('messages');
-    const $status = el('status');
-    const $answer = el('answerInput');
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-sm text-gray-500">
+            <p>© 2023 Interface Médicale. Tous droits réservés.</p>
+        </footer>
+    </div>
 
-    function setBusy(isBusy) {
-      el('btnAsk').disabled = isBusy;
-      el('btnSave').disabled = isBusy;
-      el('btnPdf').disabled = isBusy;
-      el('btnReply').disabled = isBusy;
-    }
+    <script>
+        const BASE_API = "https://question-answer-07q9.onrender.com"; // ton backend Render
+          async function runCotation() {
+            const scheme = (document.getElementById('codage-type').value || '').toLowerCase();
+            const text = document.getElementById('texte-cotation').value || '';
+            const $out = document.getElementById('resultat-cotation');
+            const $status = document.getElementById('status-cotation');
 
-    function scrollToBottom() {
-      $messages.scrollTop = $messages.scrollHeight;
-    }
-// render() : affiche toutes les Q/R dans la zone chat.
-    function render() {
-      $messages.innerHTML = '';
-      for (const item of conversation) {
-        const mq = document.createElement('div');
-        mq.className = 'msg q';
-        mq.innerHTML = `<div><strong>Q${item.id}.</strong> ${escapeHTML(item.question)}</div>`;
-        $messages.appendChild(mq);
+            // validations simples
+            if (!scheme) {
+              $status.textContent = "Choisis d'abord le type de codage (CIM-10, CCAM, GHM).";
+              return;
+            }
+            if (!text.trim()) {
+              $status.textContent = "Écris du texte à coder.";
+              return;
+            }
 
-        if (item.answer && item.answer.trim() !== '') {
-          const ma = document.createElement('div');
-          ma.className = 'msg a';
-          ma.innerHTML = `<div><strong>R${item.id}.</strong> ${escapeHTML(item.answer)}</div>`;
-          $messages.appendChild(ma);
-        }
-      }
-      scrollToBottom();
-    }
-// escapeHTML() : évite les injections HTML.
-    function escapeHTML(str='') {
-      return str.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-    }
-// lastUnanswered() : trouve la dernière question sans réponse.
-    function lastUnanswered() {
-      for (let i = conversation.length - 1; i >= 0; i--) {
-        if (!conversation[i].answer || conversation[i].answer.trim() === '') return conversation[i];
-      }
-      return null;
-    }
+            $status.textContent = "Codage en cours…";
+            try {
+              const res = await fetch(`${BASE_API}/code`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ scheme, text })
+              });
+              if (!res.ok) throw new Error('HTTP ' + res.status);
+              const data = await res.json();
+              if (data.error) throw new Error(data.error);
+              $out.textContent = data.result || "Aucun résultat.";
+              $status.textContent = "Codage terminé.";
+            } catch (e) {
+              console.error(e);
+              $status.textContent = "Erreur lors du codage.";
+              $out.textContent = String(e.message || e);
+            }
+          }
 
-    // --- Actions ---
-    // askQuestion() : envoie la liste des questions déjà posées → reçoit une nouvelle question → l’ajoute.
-    async function askQuestion() {
-      setBusy(true); $status.textContent = 'Génération de la question…'; // setBusy(true/false) : active/désactive les boutons pendant les appels.
-      try {
-        // ① on envoie les questions déjà posées
-        const previousQuestions = conversation.map(({question}) => question);
+  // Listener bouton
+  document.getElementById('btnCoder').addEventListener('click', runCotation);
 
-        const res = await fetch(`${BASE_API}/ask`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ previous_questions: previousQuestions })
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json(); // attendu: { question: "..." }
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding content
+                    button.classList.add('active');
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Copy button functionality
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const outputBox = this.parentElement.nextElementSibling;
+                    const textToCopy = outputBox.textContent;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check mr-1"></i>Copié';
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                        }, 2000);
+                    });
+                });
+            });
+            
+            // Simulate AI processing (placeholder) — on EXCLUT la cotation
+            document.querySelectorAll('textarea').forEach(textarea => {
+              textarea.addEventListener('input', function() {
+                let outputBox;
+                if (this.id === 'contexte' || this.id === 'observations') {
+                  outputBox = document.getElementById('visualisation');
+                } else if (this.id === 'texte-traitement') {
+                  outputBox = document.getElementById('resultat-traitement');
+                } else if (this.id === 'question-medicale' || this.id === 'contexte-medical') {
+                  outputBox = document.getElementById('reponse-aide');
+                } else if (this.id === 'texte-cotation') {
+                  // Ne pas simuler: on attend le clic sur "Coder" pour appeler l'API réelle.
+                  return;
+                }
 
-        const qtext = (data && data.question) ? String(data.question) : '(Question non fournie)';
-        conversation.push({ id: ++seq, question: qtext, answer: '' });
-        render(); $status.textContent = '';
-      } catch (err) {
-        console.error(err); $status.textContent = 'Erreur lors de la génération de la question.';
-      } finally { setBusy(false); }
-    }
-// sendAnswer() : ajoute une réponse saisie dans conversation.
-    function sendAnswer() {
-      const txt = $answer.value.trim();
-      if (!txt) return;
-      const target = lastUnanswered();
-      if (target) {
-        target.answer = txt;
-      } else {
-        // Aucun item sans réponse: on attache cette réponse à une nouvelle entrée libre
-        conversation.push({ id: ++seq, question: '(Réponse libre sans question)', answer: txt });
-      }
-      $answer.value = '';
-      render();
-    }
-// saveAll() : envoie toutes les Q/R au backend (/save).
-    async function saveAll() {
-      setBusy(true); $status.textContent = 'Enregistrement en cours…';
-      try {
-        const payload = {
-          pairs: conversation.map(({id, question, answer}) => ({ id, question, answer })),
-          timestamp: new Date().toISOString()
-        };
-        const res = await fetch(`${BASE_API}/save`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json(); // attendu: { status: "ok" }
-        $status.textContent = (data && data.status === 'ok') ? 'Enregistré dans QR.txt' : 'Enregistrement terminé (statut inconnu)';
-      } catch (err) {
-        console.error(err); $status.textContent = 'Erreur lors de l\'enregistrement.';
-      } finally { setBusy(false); }
-    }
-// generatePdf() : demande au backend un PDF (/pdf) → déclenche un téléchargement.
-    async function generatePdf() {
-      setBusy(true); $status.textContent = 'Génération du PDF…';
-      try {
-        const res = await fetch(`${BASE_API}/pdf`);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'questions_reponses.pdf';
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        $status.textContent = 'PDF téléchargé';
-      } catch (err) {
-        console.error(err); $status.textContent = 'Erreur lors de la génération du PDF.';
-      } finally { setBusy(false); }
-    }
-// resetConversation() : remet tout à zéro côté front.
-    function resetConversation() {
-        conversation.splice(0, conversation.length); // vide le tableau
-        seq = 0;                                     // remet l’ID à zéro
-        render();                                    // rafraîchit l’affichage
-        $status.textContent = "Conversation réinitialisée";
-        }
+                if (outputBox && this.value.trim() !== '') {
+                  outputBox.textContent = "[Résultat formaté par IA]\n\n" +
+                    this.value.toUpperCase() + "\n\n[Fin du résultat]";
+                } else if (outputBox) {
+                  outputBox.textContent = "Le texte formaté apparaîtra ici après traitement par IA.";
+                }
+              });
+            });
 
-    // --- Événements UI ---
-    el('btnAsk').addEventListener('click', askQuestion);
-    el('btnSave').addEventListener('click', saveAll);
-    el('btnPdf').addEventListener('click', generatePdf);
-    el('btnReply').addEventListener('click', sendAnswer);
-    $answer.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAnswer(); }
-    });
-      // Listeners : chaque bouton appelle la fonction correspondante (btnAsk, btnSave, etc.) du <head>,<main>.
-    el('btnReset').addEventListener('click', resetConversation);
-
-    // Astuce: conserver la conversation si on recharge (optionnel)
-    try {
-      const saved = sessionStorage.getItem('conversation'); //SessionStorage : sauvegarde l’état du chat quand tu recharges la page.
-      if (saved) {
-        const arr = JSON.parse(saved);
-        if (Array.isArray(arr)) { conversation.splice(0, conversation.length, ...arr); seq = conversation.reduce((m, x) => Math.max(m, x.id||0), 0); render(); }
-      }
-      window.addEventListener('beforeunload', () => sessionStorage.setItem('conversation', JSON.stringify(conversation)));
-    } catch {}
-
-  </script>
+    </script>
 </body>
 </html>
