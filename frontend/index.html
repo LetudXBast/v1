@@ -231,7 +231,7 @@
 
             $status.textContent = "Codage en cours…";
             try {
-              const res = await fetch(`${BASE_API}/code`, {
+              const res = await fetch('/code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ scheme, text })
