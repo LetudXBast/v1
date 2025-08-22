@@ -312,8 +312,7 @@ def api_save():
         return jsonify({"status": "ok"})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-    
-# transforme un texte en cotation.
+
 @app.route("/code", methods=["POST"])
 def api_code():
     """

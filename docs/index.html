@@ -127,7 +127,7 @@
                                 <option value="">Sélectionner un type</option>
                                 <option value="cim10">Codage CIM-10</option>
                                 <option value="ccam">Codage CCAM</option>
-                                <option value="ghm">Codage GHM</option>
+                                <option value="ghm">GHM</option>
                             </select>
                         </div>
                     </div>
@@ -137,12 +137,13 @@
                         <div>
                             <label for="texte-cotation" class="block text-sm font-medium text-blue-900 mb-1">Texte à coder</label>
                             <textarea id="texte-cotation" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez le texte à coder ici..."></textarea>
-                          </div>
-                        <div class="flex items-center gap-3">
-                            <button id="btnCoder" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
-                            <i class="fas fa-gears mr-2"></i>Coder
-                            </button>
-                            <span id="status-cotation" class="text-sm text-gray-600"></span>
+                              <div class="flex items-center gap-3">
+                                <button id="btnCoder" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                                  <i class="fas fa-gears mr-2"></i>Coder
+                                </button>
+                                <span id="status-cotation" class="text-sm text-gray-600"></span>
+                              </div>
+                            
                         </div>
                         <div>
                             <div class="flex justify-between items-center mb-1">
@@ -213,45 +214,6 @@
     </div>
 
     <script>
-        const BASE_API = "https://question-answer-07q9.onrender.com"; // ton backend Render
-          async function runCotation() {
-            const scheme = (document.getElementById('codage-type').value || '').toLowerCase();
-            const text = document.getElementById('texte-cotation').value || '';
-            const $out = document.getElementById('resultat-cotation');
-            const $status = document.getElementById('status-cotation');
-
-            // validations simples
-            if (!scheme) {
-              $status.textContent = "Choisis d'abord le type de codage (CIM-10, CCAM, GHM).";
-              return;
-            }
-            if (!text.trim()) {
-              $status.textContent = "Écris du texte à coder.";
-              return;
-            }
-
-            $status.textContent = "Codage en cours…";
-            try {
-              const res = await fetch(`${BASE_API}/code`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ scheme, text })
-              });
-              if (!res.ok) throw new Error('HTTP ' + res.status);
-              const data = await res.json();
-              if (data.error) throw new Error(data.error);
-              $out.textContent = data.result || "Aucun résultat.";
-              $status.textContent = "Codage terminé.";
-            } catch (e) {
-              console.error(e);
-              $status.textContent = "Erreur lors du codage.";
-              $out.textContent = String(e.message || e);
-            }
-          }
-
-  // Listener bouton
-  document.getElementById('btnCoder').addEventListener('click', runCotation);
-
         // Tab switching functionality
         document.addEventListener('DOMContentLoaded', function() {
             const tabButtons = document.querySelectorAll('.tab-button');
@@ -287,30 +249,32 @@
                 });
             });
             
-            // Simulate AI processing (placeholder) — on EXCLUT la cotation
+            // Simulate AI processing (in a real app, this would be an API call)
             document.querySelectorAll('textarea').forEach(textarea => {
-              textarea.addEventListener('input', function() {
-                let outputBox;
-                if (this.id === 'contexte' || this.id === 'observations') {
-                  outputBox = document.getElementById('visualisation');
-                } else if (this.id === 'texte-traitement') {
-                  outputBox = document.getElementById('resultat-traitement');
-                } else if (this.id === 'question-medicale' || this.id === 'contexte-medical') {
-                  outputBox = document.getElementById('reponse-aide');
-                } else if (this.id === 'texte-cotation') {
-                  // Ne pas simuler: on attend le clic sur "Coder" pour appeler l'API réelle.
-                  return;
-                }
-
-                if (outputBox && this.value.trim() !== '') {
-                  outputBox.textContent = "[Résultat formaté par IA]\n\n" +
-                    this.value.toUpperCase() + "\n\n[Fin du résultat]";
-                } else if (outputBox) {
-                  outputBox.textContent = "Le texte formaté apparaîtra ici après traitement par IA.";
-                }
-              });
+                textarea.addEventListener('input', function() {
+                    // Find the corresponding output box
+                    let outputBox;
+                    if (this.id === 'contexte' || this.id === 'observations') {
+                        outputBox = document.getElementById('visualisation');
+                    } else if (this.id === 'texte-cotation') {
+                        outputBox = document.getElementById('resultat-cotation');
+                    } else if (this.id === 'texte-traitement') {
+                        outputBox = document.getElementById('resultat-traitement');
+                    } else if (this.id === 'question-medicale' || this.id === 'contexte-medical') {
+                        outputBox = document.getElementById('reponse-aide');
+                    }
+                    
+                    if (outputBox && this.value.trim() !== '') {
+                        // Simulate AI processing with a simple transformation
+                        outputBox.textContent = "[Résultat formaté par IA]\n\n" + 
+                            this.value.toUpperCase() + 
+                            "\n\n[Fin du résultat]";
+                    } else if (outputBox) {
+                        outputBox.textContent = "Le texte formaté apparaîtra ici après traitement par IA.";
+                    }
+                });
             });
-
+        });
     </script>
 </body>
 </html>
