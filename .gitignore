@@ -1,0 +1,21 @@
+# ---- Fichiers sensibles ----
+backend/.env
+
+# ---- Fichiers générés ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ---- Virtualenv ----
+.venv/
+venv/
+ENV/
+env/
+
+# ---- Données temporaires ----
+backend/data/QR.txt
+
+# ---- OS ----
+.DS_Store
+Thumbs.db

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface Médicale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button.active {
+            border-bottom: 3px solid #1e3a8a;
+            color: #1e3a8a;
+        }
+        textarea {
+            resize: none;
+            min-height: 150px;
+        }
+        .output-box {
+            min-height: 200px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body class="bg-blue-50 font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="bg-white shadow-sm rounded-lg mb-8">
+            <div class="flex flex-wrap justify-between items-center p-4">
+                <h1 class="text-2xl font-bold text-blue-900">Interface Médicale</h1>
+                <nav class="mt-4 md:mt-0">
+                    <ul class="flex space-x-1 overflow-x-auto">
+                        <li>
+                            <button class="tab-button active px-4 py-2 font-medium text-gray-600 hover:text-blue-900 transition" data-tab="courrier">
+                                <i class="fas fa-envelope mr-2"></i>Courrier
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tab-button px-4 py-2 font-medium text-gray-600 hover:text-blue-900 transition" data-tab="cotation">
+                                <i class="fas fa-file-invoice-dollar mr-2"></i>Cotation
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tab-button px-4 py-2 font-medium text-gray-600 hover:text-blue-900 transition" data-tab="traitements">
+                                <i class="fas fa-pills mr-2"></i>Traitements
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tab-button px-4 py-2 font-medium text-gray-600 hover:text-blue-900 transition" data-tab="aide">
+                                <i class="fas fa-question-circle mr-2"></i>Aide médicale
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="bg-white rounded-lg shadow-sm p-6">
+            <!-- Courrier Tab -->
+            <div id="courrier" class="tab-content active">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left Side - Dropdowns -->
+                    <div class="lg:col-span-1 space-y-4">
+                        <div>
+                            <label for="specialite" class="block text-sm font-medium text-blue-900 mb-1">Spécialité</label>
+                            <select id="specialite" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Sélectionner une spécialité</option>
+                                <option value="cardiologie">Cardiologie</option>
+                                <option value="dermatologie">Dermatologie</option>
+                                <option value="neurologie">Neurologie</option>
+                                <option value="pediatrie">Pédiatrie</option>
+                                <option value="chirurgie">Chirurgie</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="type-courrier" class="block text-sm font-medium text-blue-900 mb-1">Type de courrier</label>
+                            <select id="type-courrier" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Sélectionner un type</option>
+                                <option value="consultation">Courrier de consultation</option>
+                                <option value="hospitalisation">Courrier d'hospitalisation</option>
+                                <option value="examen">Demande d'examen</option>
+                                <option value="suivi">Courrier de suivi</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Side - Text Areas -->
+                    <div class="lg:col-span-3 space-y-4">
+                        <div>
+                            <label for="contexte" class="block text-sm font-medium text-blue-900 mb-1">Contexte</label>
+                            <textarea id="contexte" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez le contexte ici..."></textarea>
+                        </div>
+                        <div>
+                            <label for="observations" class="block text-sm font-medium text-blue-900 mb-1">Observations</label>
+                            <textarea id="observations" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez vos observations ici..."></textarea>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-sm font-medium text-blue-900">Visualisation (formaté par IA)</label>
+                                <button class="copy-btn bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-800 transition">
+                                    <i class="fas fa-copy mr-1"></i>Copier
+                                </button>
+                            </div>
+                            <div class="output-box p-3 rounded-md">
+                                <p id="visualisation" class="text-gray-700">Le texte formaté apparaîtra ici après traitement par IA.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cotation Tab -->
+            <div id="cotation" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Left Side - Dropdown -->
+                    <div class="lg:col-span-1">
+                        <div>
+                            <label for="codage-type" class="block text-sm font-medium text-blue-900 mb-1">Type de codage</label>
+                            <select id="codage-type" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Sélectionner un type</option>
+                                <option value="cim10">Codage CIM-10</option>
+                                <option value="ccam">Codage CCAM</option>
+                                <option value="ghm">Codage GHM</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Side - Text Areas -->
+                    <div class="lg:col-span-3 space-y-4">
+                        <div>
+                            <label for="texte-cotation" class="block text-sm font-medium text-blue-900 mb-1">Texte à coder</label>
+                            <textarea id="texte-cotation" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez le texte à coder ici..."></textarea>
+                          </div>
+                        <div class="flex items-center gap-3">
+                            <button id="btnCoder" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                            <i class="fas fa-gears mr-2"></i>Coder
+                            </button>
+                            <span id="status-cotation" class="text-sm text-gray-600"></span>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-sm font-medium text-blue-900">Résultat du codage (formaté par IA)</label>
+                                <button class="copy-btn bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-800 transition">
+                                    <i class="fas fa-copy mr-1"></i>Copier
+                                </button>
+                            </div>
+                            <div class="output-box p-3 rounded-md">
+                                <p id="resultat-cotation" class="text-gray-700">Le résultat du codage apparaîtra ici après traitement par IA.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Traitements Tab -->
+            <div id="traitements" class="tab-content">
+                <div class="space-y-4">
+                    <div>
+                        <label for="texte-traitement" class="block text-sm font-medium text-blue-900 mb-1">Prescription à formater</label>
+                        <textarea id="texte-traitement" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez la prescription ici..."></textarea>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-medium text-blue-900">Prescription formatée (par IA)</label>
+                            <button class="copy-btn bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-800 transition">
+                                <i class="fas fa-copy mr-1"></i>Copier
+                            </button>
+                        </div>
+                        <div class="output-box p-3 rounded-md">
+                            <p id="resultat-traitement" class="text-gray-700">La prescription formatée apparaîtra ici après traitement par IA.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aide Médicale Tab -->
+            <div id="aide" class="tab-content">
+                <div class="space-y-4">
+                    <div>
+                        <label for="question-medicale" class="block text-sm font-medium text-blue-900 mb-1">Question médicale</label>
+                        <textarea id="question-medicale" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Décrivez votre question ou problème médical ici..."></textarea>
+                    </div>
+                    <div>
+                        <label for="contexte-medical" class="block text-sm font-medium text-blue-900 mb-1">Contexte (facultatif)</label>
+                        <textarea id="contexte-medical" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Ajoutez des détails contextuels si nécessaire..."></textarea>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-medium text-blue-900">Réponse médicale (par IA)</label>
+                            <button class="copy-btn bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-800 transition">
+                                <i class="fas fa-copy mr-1"></i>Copier
+                            </button>
+                        </div>
+                        <div class="output-box p-3 rounded-md">
+                            <p id="reponse-aide" class="text-gray-700">La réponse à votre question médicale apparaîtra ici après traitement par IA.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-sm text-gray-500">
+            <p>© 2023 Interface Médicale. Tous droits réservés.</p>
+        </footer>
+    </div>
+
+    <script>
+        const BASE_API = "https://question-answer-07q9.onrender.com"; // ton backend Render
+          async function runCotation() {
+            const scheme = (document.getElementById('codage-type').value || '').toLowerCase();
+            const text = document.getElementById('texte-cotation').value || '';
+            const $out = document.getElementById('resultat-cotation');
+            const $status = document.getElementById('status-cotation');
+
+            // validations simples
+            if (!scheme) {
+              $status.textContent = "Choisis d'abord le type de codage (CIM-10, CCAM, GHM).";
+              return;
+            }
+            if (!text.trim()) {
+              $status.textContent = "Écris du texte à coder.";
+              return;
+            }
+
+            $status.textContent = "Codage en cours…";
+            try {
+              const res = await fetch(`${BASE_API}/code`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ scheme, text })
+              });
+              if (!res.ok) throw new Error('HTTP ' + res.status);
+              const data = await res.json();
+              if (data.error) throw new Error(data.error);
+              $out.textContent = data.result || "Aucun résultat.";
+              $status.textContent = "Codage terminé.";
+            } catch (e) {
+              console.error(e);
+              $status.textContent = "Erreur lors du codage.";
+              $out.textContent = String(e.message || e);
+            }
+          }
+
+  // Listener bouton
+  document.getElementById('btnCoder').addEventListener('click', runCotation);
+
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding content
+                    button.classList.add('active');
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Copy button functionality
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const outputBox = this.parentElement.nextElementSibling;
+                    const textToCopy = outputBox.textContent;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check mr-1"></i>Copié';
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                        }, 2000);
+                    });
+                });
+            });
+            
+            // Simulate AI processing (placeholder) — on EXCLUT la cotation
+            document.querySelectorAll('textarea').forEach(textarea => {
+              textarea.addEventListener('input', function() {
+                let outputBox;
+                if (this.id === 'contexte' || this.id === 'observations') {
+                  outputBox = document.getElementById('visualisation');
+                } else if (this.id === 'texte-traitement') {
+                  outputBox = document.getElementById('resultat-traitement');
+                } else if (this.id === 'question-medicale' || this.id === 'contexte-medical') {
+                  outputBox = document.getElementById('reponse-aide');
+                } else if (this.id === 'texte-cotation') {
+                  // Ne pas simuler: on attend le clic sur "Coder" pour appeler l'API réelle.
+                  return;
+                }
+
+                if (outputBox && this.value.trim() !== '') {
+                  outputBox.textContent = "[Résultat formaté par IA]\n\n" +
+                    this.value.toUpperCase() + "\n\n[Fin du résultat]";
+                } else if (outputBox) {
+                  outputBox.textContent = "Le texte formaté apparaîtra ici après traitement par IA.";
+                }
+              });
+            });
+
+    </script>
+</body>
+</html>
