@@ -127,7 +127,7 @@
                                 <option value="">Sélectionner un type</option>
                                 <option value="cim10">Codage CIM-10</option>
                                 <option value="ccam">Codage CCAM</option>
-                                <option value="ghm">Codage GHM</option>
+                                <option value="ghm">GHM</option>
                             </select>
                         </div>
                     </div>
@@ -137,13 +137,14 @@
                         <div>
                             <label for="texte-cotation" class="block text-sm font-medium text-blue-900 mb-1">Texte à coder</label>
                             <textarea id="texte-cotation" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez le texte à coder ici..."></textarea>
-                          </div>
-                        <div class="flex items-center gap-3">
-                            <button id="btnCoder" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
-                            <i class="fas fa-gears mr-2"></i>Coder
-                            </button>
-                            <span id="status-cotation" class="text-sm text-gray-600"></span>
                         </div>
+                        <div class="flex items-center gap-3">
+                          <button id="btnCoder" class="bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                            <i class="fas fa-gears mr-2"></i>Coder
+                          </button>
+                          <span id="status-cotation" class="text-sm text-gray-600"></span>
+                        </div>
+
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label class="block text-sm font-medium text-blue-900">Résultat du codage (formaté par IA)</label>
@@ -213,43 +214,43 @@
     </div>
 
     <script>
-          async function runCotation() {
-            const scheme = (document.getElementById('codage-type').value || '').toLowerCase();
-            const text = document.getElementById('texte-cotation').value || '';
-            const $out = document.getElementById('resultat-cotation');
-            const $status = document.getElementById('status-cotation');
+        async function runCotation() {
+          const scheme = (document.getElementById('codage-type').value || '').toLowerCase();
+          const text = document.getElementById('texte-cotation').value || '';
+          const $out = document.getElementById('resultat-cotation');
+          const $status = document.getElementById('status-cotation');
 
-            // validations simples
-            if (!scheme) {
-              $status.textContent = "Choisis d'abord le type de codage (CIM-10, CCAM, GHM).";
-              return;
-            }
-            if (!text.trim()) {
-              $status.textContent = "Écris du texte à coder.";
-              return;
-            }
-
-            $status.textContent = "Codage en cours…";
-            try {
-              const res = await fetch('/code', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ scheme, text })
-              });
-              if (!res.ok) throw new Error('HTTP ' + res.status);
-              const data = await res.json();
-              if (data.error) throw new Error(data.error);
-              $out.textContent = data.result || "Aucun résultat.";
-              $status.textContent = "Codage terminé.";
-            } catch (e) {
-              console.error(e);
-              $status.textContent = "Erreur lors du codage.";
-              $out.textContent = String(e.message || e);
-            }
+          // validations simples
+          if (!scheme) {
+            $status.textContent = "Choisis d'abord le type de codage (CIM-10, CCAM, GHM).";
+            return;
+          }
+          if (!text.trim()) {
+            $status.textContent = "Écris du texte à coder.";
+            return;
           }
 
-  // Listener bouton
-  document.getElementById('btnCoder').addEventListener('click', runCotation);
+          $status.textContent = "Codage en cours…";
+          try {
+            const res = await fetch('/code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ scheme, text })
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+            $out.textContent = data.result || "Aucun résultat.";
+            $status.textContent = "Codage terminé.";
+          } catch (e) {
+            console.error(e);
+            $status.textContent = "Erreur lors du codage.";
+            $out.textContent = String(e.message || e);
+          }
+        }
+
+        // Listener bouton
+        document.getElementById('btnCoder').addEventListener('click', runCotation);
 
         // Tab switching functionality
         document.addEventListener('DOMContentLoaded', function() {
@@ -309,7 +310,7 @@
                 }
               });
             });
-
+        });
     </script>
 </body>
 </html>
