@@ -14,8 +14,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(dotenv_path=os.path.join(BASE_DIR, ".env")) # ← charge le .env AVANT de lire les variables
 
 
-
-
 # --- Config basique --- 
 # Définit les chemins vers tes dossiers :
 # frontend/ pour l’UI,
@@ -202,6 +200,27 @@ def append_qr_block(pairs, timestamp_iso):
     with open(QR_PATH, "a", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
+def _latin1_safe(s: str) -> str:
+    """Remplace les caractères hors Latin-1 par des équivalents ASCII."""
+    if not s:
+        return ""
+    # remplacements ciblés fréquents
+    replacements = {
+        "\u2013": "-",  # en dash
+        "\u2014": "-",  # em dash
+        "\u2012": "-",  # figure dash
+        "\u2212": "-",  # minus math
+        "\u00A0": " ",  # espace insécable
+        "\u2018": "'", "\u2019": "'",  # apostrophes typographiques
+        "\u201C": '"', "\u201D": '"',  # guillemets typographiques
+        "\u2022": "*", "\u00B7": "*",  # puces
+        "\u2026": "...",               # points de suspension
+    }
+    for k, v in replacements.items():
+        s = s.replace(k, v)
+    # Dernier filet de sécurité: remplace le reste par '?'
+    return s.encode("latin-1", "replace").decode("latin-1")
+
 def build_pdf_from_qr() -> BytesIO:
     """
     Lit QR.txt et construit un PDF simple en mémoire avec FPDF.
@@ -237,6 +256,48 @@ def build_pdf_from_qr() -> BytesIO:
     buf.write(pdf_bytes)
     buf.seek(0)
     return buf
+
+def build_pdf_from_text(title: str, subtitle: str, body: str) -> BytesIO:
+    """
+    Construit un PDF simple en mémoire (titre, sous-titre, corps multi-lignes).
+    """
+    from fpdf import FPDF
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    # 🔽 normalisation ici
+    title = _latin1_safe(title)
+    subtitle = _latin1_safe(subtitle)
+    body = _latin1_safe(body)
+
+    # Titre
+    pdf.set_font("Arial", style="B", size=14)
+    pdf.cell(0, 10, title or "Document", ln=True)
+
+    # Sous-titre + horodatage
+    pdf.set_font("Arial", size=10)
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    subtitle = (subtitle or "").strip()
+    if subtitle:
+        pdf.multi_cell(0, 7, subtitle)
+    pdf.cell(0, 8, f"Généré le {ts}", ln=True)
+    pdf.ln(4)
+
+    # Corps
+    pdf.set_font("Arial", size=12)
+    body = (body or "").replace("\r\n", "\n")
+    for line in body.split("\n"):
+        pdf.multi_cell(0, 7, line if line.strip() else " ")
+
+    buf = BytesIO()
+    pdf_bytes = pdf.output(dest="S").encode("latin1")
+    buf.write(pdf_bytes)
+    buf.seek(0)
+    return buf
+
+
+
 
 
 # --- Routes Frontend (sert index.html depuis /) ---
@@ -354,6 +415,31 @@ def api_pdf():
         )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route("/pdf_content", methods=["POST"])
+def api_pdf_content():
+    """
+    Reçoit JSON: { title: str, subtitle: str, content: str }
+    Renvoie un PDF à télécharger.
+    """
+    try:
+        payload = request.get_json(force=True, silent=False)
+        title = payload.get("title", "Document")
+        subtitle = payload.get("subtitle", "")
+        content = payload.get("content", "")
+        buf = build_pdf_from_text(title, subtitle, content)
+        return send_file(
+            buf,
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name="cotation.pdf",
+            max_age=0,
+        )
+    except Exception as e:
+        # Log utile pour comprendre si ça recasse
+        print("Erreur /pdf_content:", repr(e))
+        return jsonify({"error": str(e)}), 500
+
 
 # --- Lancement ---
 # Lance le serveur, écoute le port (Render fournit automatiquement PORT).
