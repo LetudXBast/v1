@@ -397,9 +397,11 @@ def api_code():
         return jsonify({"error": str(e)}), 400
 
 
+
+
 # Génère un PDF et l’envoie directement au navigateur.
-@app.route("/pdf", methods=["GET"])
-def api_pdf():
+# @app.route("/pdf", methods=["GET"])
+# def api_pdf():
     """
     Génére un PDF à partir de data/QR.txt et renvoie le binaire.
     """
