@@ -48,6 +48,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 # def ensure_dirs():
 #     os.makedirs(DATA_DIR, exist_ok=True)
 
+# mistral_code_text() → construit le prompt, appelle l’API Mistral, nettoie la réponse.
 def mistral_code_text(text: str, scheme: str) -> str:
     """
     Code un texte clinique selon le schéma demandé: 'cim10' | 'ccam' | 'ghm'.
@@ -64,25 +65,43 @@ def mistral_code_text(text: str, scheme: str) -> str:
     # Règles spécifiques
     if scheme == "cim10":
         instructions = (
-            "Tu es un codeur médical. Fais le codage CIM-10 (diagnostics) strictement.\n"
-            "- Donne 3 parties: 1) Principaux codes (avec libellés), 2) Codes associés/secondaires, 3) Justification par extraits.\n"
-            "- Format: liste à puces, 'CODE — Libellé'.\n"
-            "- Ne crée pas de codes inexistants. Si ambigu, propose 2-3 alternatives plausibles avec conditions.\n"
-            "- Pas d'explications générales: uniquement le résultat structuré."
+            "Tu es expert en codage PMSI hospitalier. À partir des observations médicales ci-dessous, produis une **proposition de codage PMSI** structurée comme suit : \n"
+             " - Identifier le **Diagnostic Principal (DP)** suggéré selon les règles PMSI (pathologie ayant motivé l’hospitalisation et consommé l’essentiel des ressources), en privilégiant celui qui maximise la sévérité.\n"
+             " - Identifier les **Diagnostics Associés (DS)** pertinents.  "
         )
     elif scheme == "ccam":
         instructions = (
-            "Tu es un codeur médical. Fais le codage CCAM (actes) strictement.\n"
-            "- Donne 3 parties: 1) Actes principaux (CODE — Libellé), 2) Actes associés, 3) Justification par extraits.\n"
-            "- Ajoute côté actes, si pertinent: latéralité, guidage imagerie, voie d'abord.\n"
-            "- Ne crée pas de codes inexistants. Si ambigu, alternatives plausibles + conditions."
+            "Tu es expert en codage PMSI hospitalier. À partir des observations médicales ci-dessous, produis une **proposition de codage PMSI** structurée comme suit :  \n"
+            "- Proposer les codages **CCAM** des actes réalisés (imagerie, gestes diagnostiques, thérapeutiques, soins liés à stomie, etc.)."
         )
     else:  # ghm
         instructions = (
-            "Tu es un codeur médical. Propose le GHM le plus probable.\n"
-            "- Donne 3 parties: 1) GHM candidat(s) (CODE — Libellé), 2) Diagnostics/actes clés motivants, 3) Justification par extraits.\n"
-            "- Si l'information est insuffisante, indique précisément ce qu'il manque."
+            "Tu es expert en codage PMSI hospitalier. À partir des observations médicales ci-dessous, produis une **proposition de codage PMSI** structurée comme suit :  \n"
+            "- Proposer le **GHM** correspondant, avec explication du choix.  \n"
+            "- Si plusieurs options sont possibles (ex : trouble hydro-électrolytique vs infection abdominale), proposer l’alternative et préciser laquelle maximise la sévérité."
         )
+    # # Règles spécifiques
+    # if scheme == "cim10":
+    #     instructions = (
+    #         "Tu es un codeur médical. Fais le codage CIM-10 (diagnostics) strictement.\n"
+    #         "- Donne 3 parties: 1) Principaux codes (avec libellés), 2) Codes associés/secondaires, 3) Justification par extraits.\n"
+    #         "- Format: liste à puces, 'CODE — Libellé'.\n"
+    #         "- Ne crée pas de codes inexistants. Si ambigu, propose 2-3 alternatives plausibles avec conditions.\n"
+    #         "- Pas d'explications générales: uniquement le résultat structuré."
+    #     )
+    # elif scheme == "ccam":
+    #     instructions = (
+    #         "Tu es un codeur médical. Fais le codage CCAM (actes) strictement.\n"
+    #         "- Donne 3 parties: 1) Actes principaux (CODE — Libellé), 2) Actes associés, 3) Justification par extraits.\n"
+    #         "- Ajoute côté actes, si pertinent: latéralité, guidage imagerie, voie d'abord.\n"
+    #         "- Ne crée pas de codes inexistants. Si ambigu, alternatives plausibles + conditions."
+    #     )
+    # else:  # ghm
+    #     instructions = (
+    #         "Tu es un codeur médical. Propose le GHM le plus probable.\n"
+    #         "- Donne 3 parties: 1) GHM candidat(s) (CODE — Libellé), 2) Diagnostics/actes clés motivants, 3) Justification par extraits.\n"
+    #         "- Si l'information est insuffisante, indique précisément ce qu'il manque."
+    #     )
 
     headers = {
         "Authorization": f"Bearer {MISTRAL_API_KEY}",
@@ -109,7 +128,7 @@ def mistral_code_text(text: str, scheme: str) -> str:
     )
     return content or "Aucun résultat renvoyé par le modèle."
 
-
+# _latin1_safe() → remplace les caractères hors Latin-1 par des équivalents ASCII.
 def _latin1_safe(s: str) -> str:
     """Remplace les caractères hors Latin-1 par des équivalents ASCII."""
     if not s:
@@ -131,7 +150,7 @@ def _latin1_safe(s: str) -> str:
     # Dernier filet de sécurité: remplace le reste par '?'
     return s.encode("latin-1", "replace").decode("latin-1")
 
-
+# build_pdf_from_text() → génère un PDF à partir d'un texte donné.
 def build_pdf_from_text(title: str, subtitle: str, body: str) -> BytesIO:
     """
     Construit un PDF simple en mémoire (titre, sous-titre, corps multi-lignes).
@@ -170,9 +189,6 @@ def build_pdf_from_text(title: str, subtitle: str, body: str) -> BytesIO:
     buf.write(pdf_bytes)
     buf.seek(0)
     return buf
-
-
-
 
 
 # --- Routes Frontend (sert index.html depuis /) ---
