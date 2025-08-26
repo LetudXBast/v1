@@ -513,48 +513,42 @@
         });
 
 
-
-                
-        // Optionnel si script en bas de page (pas dans le head) ; sinon le garder (optionnel ici, donc)
-        document.addEventListener('DOMContentLoaded', function() {
-
         // Tab switching functionality
-        // Tab switching : Repère tous les boutons .tab-button et panneaux .tab-content.
-        // Au clic, retire active partout puis l’ajoute sur le bouton cliqué et le panneau ciblé via data-tab.
-        // ➜ C’est ce qui affiche/masque les onglets. Utile. Ne pas toucher.
-        document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.tab-button');
-            if (!btn) return;
+        document.addEventListener('DOMContentLoaded', function() {
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
-
-            tabButtons.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-
-            btn.classList.add('active');
-            const tabId = btn.getAttribute('data-tab');
-            document.getElementById(tabId)?.classList.add('active');
-        });
-
-            // Copy button (robuste) functionality
-            // Pour chaque .copy-btn, copie le texte de la “boîte de sortie” voisine, puis affiche “Copié” 2 s.
-            // ➜ Pratique pour l’utilisateur
-        document.querySelectorAll('.copy-btn').forEach(button => {
-            button.addEventListener('click', function() {
-            const section = this.closest('div');
-            const outputBox =
-                section?.querySelector('.output-box, #visualisation, #resultat-traitement, #resultat-cotation, #reponse-aide');
-            const textToCopy = (outputBox?.innerText || outputBox?.textContent || '').trim();
-            if (!textToCopy) return;
-
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const original = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check mr-1"></i>Copié';
-                setTimeout(() => { this.innerHTML = original; }, 2000);
-            }).catch(() => alert('Impossible de copier.'));
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button and corresponding content
+                    button.classList.add('active');
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
             });
-        });
-        });
+            
+            // Copy button functionality
+            // Pour chaque .copy-btn, copie le texte de la “boîte de sortie” voisine, puis affiche “Copié” 2 s.
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const outputBox = this.parentElement.nextElementSibling;
+                    const textToCopy = outputBox.textContent;
+                    
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check mr-1"></i>Copié';
+                        
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                        }, 2000);
+                    });
+                });
+            });         
+        });       
         
 
     </script>
