@@ -300,7 +300,7 @@
             }
             if ($status) $status.textContent = "Génération du PDF…";
             try {
-                const res = await fetch(`${BASE_API}/pdf_content`, {
+                const res = await fetch('/pdf_content', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, subtitle, content })
@@ -513,6 +513,7 @@
         });
 
 
+
         // Tab switching functionality
         document.addEventListener('DOMContentLoaded', function() {
             const tabButtons = document.querySelectorAll('.tab-button');
@@ -547,9 +548,9 @@
                         }, 2000);
                     });
                 });
-            });         
+            });
+            
         });       
-        
 
     </script>
 </body>
