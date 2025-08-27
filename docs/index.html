@@ -289,7 +289,29 @@
 
     <!-- Maintenant, on rentre dans la partie JavaScript (fonctionnement des boutons, des clics...etc) -->
     <script>
-        const BASE_API = "https://v2-yclr.onrender.com";
+
+        // Définis ici l'URL publique de ton backend (Render) pour les cas cross-origin :
+        const RENDER_API = "https://v2-yclr.onrender.com";
+
+        const BASE_API = (() => {
+        // 1) Override manuel prioritaire (utile en test/démo)
+        const forced =
+            new URLSearchParams(location.search).get("api") ||
+            localStorage.getItem("BASE_API");
+        if (forced) return forced.replace(/\/$/, "");
+
+        // 2) Si hébergé sur GitHub Pages → utilise le backend Render
+        if (location.host.endsWith("github.io")) return RENDER_API;
+
+        // 3) Sinon, utilise la même origine (Flask local ou Render full-stack)
+        return location.origin.replace(/\/$/, "");
+        })();
+
+        // Astuce: pour changer à la volée sans modifier le code :
+        // localStorage.setItem("BASE_API", "http://127.0.0.1:5000"); location.reload();
+        // ou ajouter ?api=http://127.0.0.1:5000 à l'URL de la page
+
+        // const BASE_API = "http://127.0.0.1:5000";
             // Générer des PDF
         async function generateSectionPdf({ title, subtitle, content, filename = "document.pdf", statusElId }) {
             const $status = statusElId ? document.getElementById(statusElId) : null;
@@ -300,7 +322,7 @@
             }
             if ($status) $status.textContent = "Génération du PDF…";
             try {
-                const res = await fetch('/pdf_content', {
+                const res = await fetch(`${BASE_API}/pdf_content`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, subtitle, content })
@@ -465,39 +487,56 @@
         if (contexte.trim()) subtitleParts.push("Contexte:\n" + contexte);
         if (observations.trim()) subtitleParts.push("Observations:\n" + observations);
         generateSectionPdf({
-            title: "Courrier de consultation",
-            subtitle: subtitleParts.join("\n\n"),
-            content: resultText,
+            title: "Courrier d'hospitalisation",
+        //     subtitle: subtitleParts.join("\n\n"),
+        //     content: resultText,
+        //     filename: "courrier.pdf",
+        //     statusElId: "status-courrier-pdf"
+        // });
+        // });
+            subtitle: "",                    // ⬅️ pas de Contexte/Observations
+            content: resultText,             // ⬅️ uniquement le courrier IA
             filename: "courrier.pdf",
             statusElId: "status-courrier-pdf"
         });
-        });
-        
+        });       
+ 
         document.getElementById('btnPdfCotation').addEventListener('click', () => {
         const scheme = (document.getElementById('codage-type').value || '').toUpperCase();
         const inputText = document.getElementById('texte-cotation')?.value || '';
         const resultText = document.getElementById('resultat-cotation')?.textContent || '';
         generateSectionPdf({
             title: scheme ? `Cotation ${scheme}` : "Cotation",
-            subtitle: inputText ? "Texte source:\n" + inputText : "",
-            content: "Résultat IA:\n\n" + resultText,
+        //     subtitle: inputText ? "Texte source:\n" + inputText : "",
+        //     content: "Résultat IA:\n\n" + resultText,
+        //     filename: "cotation.pdf",
+        //     statusElId: "status-cotation-pdf"
+        // });
+        // });
+            subtitle: "",                    // ⬅️ plus aucun texte utilisateur
+            content: resultText,             // ⬅️ uniquement la sortie IA
             filename: "cotation.pdf",
             statusElId: "status-cotation-pdf"
         });
-        });
-        
+        });      
+  
         document.getElementById('btnPdfTraitement').addEventListener('click', () => {
         const inputText = document.getElementById('texte-traitement')?.value || '';
         const resultText = document.getElementById('resultat-traitement')?.textContent || '';
         generateSectionPdf({
             title: "Prescription formatée",
-            subtitle: inputText ? "Texte source:\n" + inputText : "",
-            content: "Résultat IA:\n\n" + resultText,
+        //     subtitle: inputText ? "Texte source:\n" + inputText : "",
+        //     content: "Résultat IA:\n\n" + resultText,
+        //     filename: "prescription.pdf",
+        //     statusElId: "status-traitement-pdf"
+        // });
+        // });
+            subtitle: "",                    // ⬅️ rien
+            content: resultText,             // ⬅️ uniquement IA
             filename: "prescription.pdf",
             statusElId: "status-traitement-pdf"
         });
         });
-
         document.getElementById('btnPdfAide').addEventListener('click', () => {
         const q = document.getElementById('question-medicale')?.value || '';
         const c = document.getElementById('contexte-medical')?.value || '';
@@ -505,13 +544,18 @@
         const subtitle = [q && "Question:\n" + q, c && "Contexte:\n" + c].filter(Boolean).join("\n\n");
         generateSectionPdf({
             title: "Aide médicale",
-            subtitle,
-            content: resultText,
+        //     subtitle,
+        //     content: resultText,
+        //     filename: "aide_medicale.pdf",
+        //     statusElId: "status-aide-pdf"
+        // });
+        // });
+            subtitle: "",                    // ⬅️ pas de question/contexte utilisateur
+            content: resultText,             // ⬅️ uniquement IA
             filename: "aide_medicale.pdf",
             statusElId: "status-aide-pdf"
         });
         });
-
 
 
         // Tab switching functionality
