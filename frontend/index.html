@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+    <!-- Toute la partie <head>  </head> correspond au style .css (police d'écriture, couleurs, formes boutons...) -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,9 @@
     </style>
 </head>
 <body class="bg-blue-50 font-sans">
+            <!-- Toute la partie  <div> <\div> correspond au contenu du texte sur le site frontend -->        
     <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Toute la partie <header>  </header> correspond aux onglets -->
         <!-- Header -->
         <header class="bg-white shadow-sm rounded-lg mb-8">
             <div class="flex flex-wrap justify-between items-center p-4">
@@ -60,9 +63,10 @@
                 </nav>
             </div>
         </header>
-
+        <!-- Toute la partie <main>  </main> correspond au contenu global du site -->
         <!-- Main Content -->
         <main class="bg-white rounded-lg shadow-sm p-6">
+            <!-- Toute la partie Courrier Tab correspond à l'onglet 1 (Courrier) -->        
             <!-- Courrier Tab -->
             <div id="courrier" class="tab-content active">
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -72,11 +76,11 @@
                             <label for="specialite" class="block text-sm font-medium text-blue-900 mb-1">Spécialité</label>
                             <select id="specialite" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Sélectionner une spécialité</option>
-                                <option value="cardiologie">Cardiologie</option>
+                                <!-- <option value="cardiologie">Cardiologie</option>
                                 <option value="dermatologie">Dermatologie</option>
                                 <option value="neurologie">Neurologie</option>
                                 <option value="pediatrie">Pédiatrie</option>
-                                <option value="chirurgie">Chirurgie</option>
+                                <option value="chirurgie">Chirurgie</option> -->
                                 <option value="reanimation">Réanimation</option>
                             </select>
                         </div>
@@ -84,10 +88,10 @@
                             <label for="type-courrier" class="block text-sm font-medium text-blue-900 mb-1">Type de courrier</label>
                             <select id="type-courrier" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                                 <option value="">Sélectionner un type</option>
-                                <option value="consultation">Courrier de consultation</option>
+                                <!-- <option value="consultation">Courrier de consultation</option> -->
                                 <option value="hospitalisation">Courrier d'hospitalisation</option>
-                                <option value="examen">Demande d'examen</option>
-                                <option value="suivi">Courrier de suivi</option>
+                                <!-- <option value="examen">Demande d'examen</option>
+                                <option value="suivi">Courrier de suivi</option> -->
                             </select>
                         </div>
                     </div>
@@ -102,6 +106,14 @@
                             <label for="observations" class="block text-sm font-medium text-blue-900 mb-1">Observations</label>
                             <textarea id="observations" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez vos observations ici..."></textarea>
                         </div>
+                        <div class="flex items-center gap-3 mt-2">
+                        <button id="btnGenererCourrier"
+                            class="inline-flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                            <i class="fa-solid fa-file-lines"></i>
+                            <span>Générer le courrier</span>
+                        </button>
+                        <span id="status-courrier" class="text-sm text-gray-600"></span>
+                        </div>
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <label class="block text-sm font-medium text-blue-900">Visualisation (formaté par IA)</label>
@@ -112,11 +124,18 @@
                             <div class="output-box p-3 rounded-md">
                                 <p id="visualisation" class="text-gray-700">Le texte formaté apparaîtra ici après traitement par IA.</p>
                             </div>
+                            <div class="flex items-center gap-3 mt-2">
+                                <button id="btnPdfCourrier"
+                                    class="inline-flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                                    <i class="fa-regular fa-file-pdf"></i><span>PDF</span>
+                                </button>
+                                <span id="status-courrier-pdf" class="text-sm text-gray-600"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
+            <!-- Toute la partie Cotation Tab correspond à l'onglet 2 (Cotation) -->        
             <!-- Cotation Tab -->
             <div id="cotation" class="tab-content">
                 <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -184,12 +203,21 @@
                 </div> <!-- ✅ fin grid -->
             </div>   <!-- ✅ fin cotation -->
 
+            <!-- Toute la partie Traitements Tab correspond à l'onglet 3 (Traitements) -->                    
             <!-- Traitements Tab -->
             <div id="traitements" class="tab-content">
                 <div class="space-y-4">
                     <div>
                         <label for="texte-traitement" class="block text-sm font-medium text-blue-900 mb-1">Prescription à formater</label>
                         <textarea id="texte-traitement" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Saisissez ou collez la prescription ici..."></textarea>
+                    </div>
+                    <div class="flex items-center gap-3 mt-2">
+                    <button id="btnFormatPrescription"
+                        class="inline-flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                        <i class="fa-solid fa-prescription-bottle-medical"></i>
+                        <span>Formater prescription</span>
+                    </button>
+                    <span id="status-traitement" class="text-sm text-gray-600"></span>
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-1">
@@ -201,10 +229,18 @@
                         <div class="output-box p-3 rounded-md">
                             <p id="resultat-traitement" class="text-gray-700">La prescription formatée apparaîtra ici après traitement par IA.</p>
                         </div>
+                        <div class="flex items-center gap-3 mt-2">
+                            <button id="btnPdfTraitement"
+                                class="inline-flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                                <i class="fa-regular fa-file-pdf"></i><span>PDF</span>
+                            </button>
+                            <span id="status-traitement-pdf" class="text-sm text-gray-600"></span>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Toute la partie Aide médicale Tab correspond à l'onglet 4 (Aide médicale) -->        
             <!-- Aide Médicale Tab -->
             <div id="aide" class="tab-content">
                 <div class="space-y-4">
@@ -216,6 +252,13 @@
                         <label for="contexte-medical" class="block text-sm font-medium text-blue-900 mb-1">Contexte (facultatif)</label>
                         <textarea id="contexte-medical" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Ajoutez des détails contextuels si nécessaire..."></textarea>
                     </div>
+                        <div class="flex items-center gap-3 mt-2">
+                        <button id="btnGenererAide"
+                            class="inline-flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                            <i class="fa-solid fa-stethoscope"></i><span>Générer l'aide</span>
+                        </button>
+                        <span id="status-aide" class="text-sm text-gray-600"></span>
+                    </div>
                     <div>
                         <div class="flex justify-between items-center mb-1">
                             <label class="block text-sm font-medium text-blue-900">Réponse médicale (par IA)</label>
@@ -226,18 +269,115 @@
                         <div class="output-box p-3 rounded-md">
                             <p id="reponse-aide" class="text-gray-700">La réponse à votre question médicale apparaîtra ici après traitement par IA.</p>
                         </div>
+                        <div class="flex items-center gap-3 mt-2">
+                            <button id="btnPdfAide"
+                                class="inline-flex items-center gap-2 bg-blue-900 text-white px-4 py-2 rounded hover:bg-blue-800 transition">
+                                <i class="fa-regular fa-file-pdf"></i><span>PDF</span>
+                            </button>
+                            <span id="status-aide-pdf" class="text-sm text-gray-600"></span>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
-
+        <!-- Toute la partie Footer correspond au bas de page -->        
         <!-- Footer -->
         <footer class="mt-8 text-center text-sm text-gray-500">
             <p>© 2023 Interface Médicale. Tous droits réservés.</p>
         </footer>
     </div>
 
+    <!-- Maintenant, on rentre dans la partie JavaScript (fonctionnement des boutons, des clics...etc) -->
     <script>
+
+        // Définis ici l'URL publique de ton backend (Render) pour les cas cross-origin :
+        const RENDER_API = "https://v2-yclr.onrender.com";
+
+        const BASE_API = (() => {
+        // 1) Override manuel prioritaire (utile en test/démo)
+        const forced =
+            new URLSearchParams(location.search).get("api") ||
+            localStorage.getItem("BASE_API");
+        if (forced) return forced.replace(/\/$/, "");
+
+        // 2) Si hébergé sur GitHub Pages → utilise le backend Render
+        if (location.host.endsWith("github.io")) return RENDER_API;
+
+        // 3) Sinon, utilise la même origine (Flask local ou Render full-stack)
+        return location.origin.replace(/\/$/, "");
+        })();
+
+        // Astuce: pour changer à la volée sans modifier le code :
+        // localStorage.setItem("BASE_API", "http://127.0.0.1:5000"); location.reload();
+        // ou ajouter ?api=http://127.0.0.1:5000 à l'URL de la page
+
+        // const BASE_API = "http://127.0.0.1:5000";
+            // Générer des PDF
+        async function generateSectionPdf({ title, subtitle, content, filename = "document.pdf", statusElId }) {
+            const $status = statusElId ? document.getElementById(statusElId) : null;
+
+            if (!content || !content.trim()) {
+                if ($status) $status.textContent = "Aucun contenu à exporter.";
+                return;
+            }
+            if ($status) $status.textContent = "Génération du PDF…";
+            try {
+                const res = await fetch(`${BASE_API}/pdf_content`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, subtitle, content })
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = filename;
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                if ($status) $status.textContent = "PDF téléchargé.";
+            } catch (e) {
+                console.error(e);
+                if ($status) $status.textContent = "Erreur PDF.";
+            }
+        }
+
+            // Appel IA pour générer un courrier
+        async function runCourrier() {
+            // récupère la spécialité sélectionnée (ex: 'reanimation')
+            const specialty = (document.getElementById('specialite')?.value || 'reanimation').toLowerCase();
+            // récupère les textes
+            const contexte = document.getElementById('contexte')?.value || '';
+            const observations = document.getElementById('observations')?.value || '';
+            // sortie + statut
+            const $out = document.getElementById('visualisation');   // adapte si ton id diffère
+            const $status = document.getElementById('status-courrier');
+
+            if (!contexte.trim() && !observations.trim()) {
+                $status.textContent = "Renseigne Contexte et/ou Observations.";
+                return;
+            }
+
+            $status.textContent = "Génération du courrier…";
+            try {
+                const res = await fetch(`${BASE_API}/generate_courrier`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ specialty, contexte, observations })
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                $out.textContent = data.result || "Aucun résultat.";
+                $status.textContent = "Courrier généré.";
+            } catch (e) {
+                console.error(e);
+                $status.textContent = "Erreur lors de la génération du courrier.";
+                if ($out) $out.textContent = String(e.message || e);
+            }
+        }
+        document.getElementById('btnGenererCourrier').addEventListener('click', runCourrier);
+
+            // Appel IA pour réaliser la cotation
         async function runCotation() {
           const scheme = (document.getElementById('codage-type').value || '').toLowerCase();
           const text = document.getElementById('texte-cotation').value || '';
@@ -256,7 +396,7 @@
 
           $status.textContent = "Codage en cours…";
           try {
-            const res = await fetch('/code', {
+            const res = await fetch(`${BASE_API}/code`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ scheme, text })
@@ -272,45 +412,151 @@
             $out.textContent = String(e.message || e);
           }
         }
-        // Listener bouton
         document.getElementById('btnCoder').addEventListener('click', runCotation);
 
-        async function generateCotationPdf() {
-            const scheme = (document.getElementById('codage-type').value || '').toUpperCase();
-            const inputText = document.getElementById('texte-cotation').value || '';
-            const resultText = document.getElementById('resultat-cotation').textContent || '';
-            const $status = document.getElementById('status-cotation-pdf');
+            // Appel IA pour transformer l'ordonnance
+        async function runFormatPrescription() {
+        const text = document.getElementById('texte-traitement').value || '';
+        const $out = document.getElementById('resultat-traitement');
+        const $status = document.getElementById('status-traitement');
 
-            if (!resultText.trim()) {
-                $status.textContent = "Aucun résultat à exporter. Clique d'abord sur Coder.";
+        if (!text.trim()) {
+            $status.textContent = "Écris du texte de prescription d'abord.";
+            return;
+        }
+
+        $status.textContent = "Formatage en cours…";
+        try {
+            const res = await fetch(`${BASE_API}/format_treatment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+            });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            $out.textContent = data.result || "Aucun résultat.";
+            $status.textContent = "Formatage terminé.";
+        } catch (e) {
+            console.error(e);
+            $status.textContent = "Erreur lors du formatage.";
+            $out.textContent = String(e.message || e);
+        }
+        }
+        document.getElementById('btnFormatPrescription').addEventListener('click', runFormatPrescription);
+            // Appel IA pour réaliser une aide médicale
+        async function runAideMedicale() {
+            const question = document.getElementById('question-medicale')?.value || '';
+            const contexte = document.getElementById('contexte-medical')?.value || '';
+            const $out = document.getElementById('reponse-aide');
+            const $status = document.getElementById('status-aide');
+
+            if (!question.trim() && !contexte.trim()) {
+                $status.textContent = "Renseigne la question et/ou le contexte.";
                 return;
             }
 
-            const title = `Cotation ${scheme || '—'}`;
-            const subtitle = inputText ? "Texte source:\n" + inputText : "";
-            const content = "Résultat IA:\n\n" + resultText;
-
-            $status.textContent = "Génération du PDF…";
+            $status.textContent = "Génération en cours…";
             try {
-                const res = await fetch('/pdf_content', {
+                const res = await fetch(`${BASE_API}/aide_medicale`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, subtitle, content })
+                body: JSON.stringify({ question, contexte })
                 });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
-                const blob = await res.blob();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = 'cotation.pdf';
-                document.body.appendChild(a); a.click(); a.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
-                $status.textContent = "PDF téléchargé.";
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                $out.textContent = data.result || "Aucun résultat.";
+                $status.textContent = "Aide générée.";
             } catch (e) {
                 console.error(e);
-                $status.textContent = "Erreur PDF.";
+                $status.textContent = "Erreur lors de la génération.";
+                if ($out) $out.textContent = String(e.message || e);
             }
-            }
-        document.getElementById('btnPdfCotation').addEventListener('click', generateCotationPdf);
+        }
+        document.getElementById('btnGenererAide').addEventListener('click', runAideMedicale);
+        
+        ////////########## Listeners pdf : génération des pdf lorsque l'on clique sur les boutons associés (1 par onglet) ##################
+        document.getElementById('btnPdfCourrier').addEventListener('click', () => {
+        const contexte = document.getElementById('contexte')?.value || '';
+        const observations = document.getElementById('observations')?.value || '';
+        const resultText = document.getElementById('visualisation')?.textContent || '';
+        const subtitleParts = [];
+        if (contexte.trim()) subtitleParts.push("Contexte:\n" + contexte);
+        if (observations.trim()) subtitleParts.push("Observations:\n" + observations);
+        generateSectionPdf({
+            title: "Courrier d'hospitalisation",
+        //     subtitle: subtitleParts.join("\n\n"),
+        //     content: resultText,
+        //     filename: "courrier.pdf",
+        //     statusElId: "status-courrier-pdf"
+        // });
+        // });
+            subtitle: "",                    // ⬅️ pas de Contexte/Observations
+            content: resultText,             // ⬅️ uniquement le courrier IA
+            filename: "courrier.pdf",
+            statusElId: "status-courrier-pdf"
+        });
+        });       
+ 
+        document.getElementById('btnPdfCotation').addEventListener('click', () => {
+        const scheme = (document.getElementById('codage-type').value || '').toUpperCase();
+        const inputText = document.getElementById('texte-cotation')?.value || '';
+        const resultText = document.getElementById('resultat-cotation')?.textContent || '';
+        generateSectionPdf({
+            title: scheme ? `Cotation ${scheme}` : "Cotation",
+        //     subtitle: inputText ? "Texte source:\n" + inputText : "",
+        //     content: "Résultat IA:\n\n" + resultText,
+        //     filename: "cotation.pdf",
+        //     statusElId: "status-cotation-pdf"
+        // });
+        // });
+            subtitle: "",                    // ⬅️ plus aucun texte utilisateur
+            content: resultText,             // ⬅️ uniquement la sortie IA
+            filename: "cotation.pdf",
+            statusElId: "status-cotation-pdf"
+        });
+        });      
+  
+        document.getElementById('btnPdfTraitement').addEventListener('click', () => {
+        const inputText = document.getElementById('texte-traitement')?.value || '';
+        const resultText = document.getElementById('resultat-traitement')?.textContent || '';
+        generateSectionPdf({
+            title: "Prescription formatée",
+        //     subtitle: inputText ? "Texte source:\n" + inputText : "",
+        //     content: "Résultat IA:\n\n" + resultText,
+        //     filename: "prescription.pdf",
+        //     statusElId: "status-traitement-pdf"
+        // });
+        // });
+            subtitle: "",                    // ⬅️ rien
+            content: resultText,             // ⬅️ uniquement IA
+            filename: "prescription.pdf",
+            statusElId: "status-traitement-pdf"
+        });
+        });
+        document.getElementById('btnPdfAide').addEventListener('click', () => {
+        const q = document.getElementById('question-medicale')?.value || '';
+        const c = document.getElementById('contexte-medical')?.value || '';
+        const resultText = document.getElementById('reponse-aide')?.textContent || '';
+        const subtitle = [q && "Question:\n" + q, c && "Contexte:\n" + c].filter(Boolean).join("\n\n");
+        generateSectionPdf({
+            title: "Aide médicale",
+        //     subtitle,
+        //     content: resultText,
+        //     filename: "aide_medicale.pdf",
+        //     statusElId: "status-aide-pdf"
+        // });
+        // });
+            subtitle: "",                    // ⬅️ pas de question/contexte utilisateur
+            content: resultText,             // ⬅️ uniquement IA
+            filename: "aide_medicale.pdf",
+            statusElId: "status-aide-pdf"
+        });
+        });
+
 
         // Tab switching functionality
         document.addEventListener('DOMContentLoaded', function() {
@@ -331,6 +577,7 @@
             });
             
             // Copy button functionality
+            // Pour chaque .copy-btn, copie le texte de la “boîte de sortie” voisine, puis affiche “Copié” 2 s.
             document.querySelectorAll('.copy-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const outputBox = this.parentElement.nextElementSibling;
@@ -347,30 +594,8 @@
                 });
             });
             
-            // Simulate AI processing (placeholder) — on EXCLUT la cotation
-            document.querySelectorAll('textarea').forEach(textarea => {
-              textarea.addEventListener('input', function() {
-                let outputBox;
-                if (this.id === 'contexte' || this.id === 'observations') {
-                  outputBox = document.getElementById('visualisation');
-                } else if (this.id === 'texte-traitement') {
-                  outputBox = document.getElementById('resultat-traitement');
-                } else if (this.id === 'question-medicale' || this.id === 'contexte-medical') {
-                  outputBox = document.getElementById('reponse-aide');
-                } else if (this.id === 'texte-cotation') {
-                  // Ne pas simuler: on attend le clic sur "Coder" pour appeler l'API réelle.
-                  return;
-                }
+        });       
 
-                if (outputBox && this.value.trim() !== '') {
-                  outputBox.textContent = "[Résultat formaté par IA]\n\n" +
-                    this.value.toUpperCase() + "\n\n[Fin du résultat]";
-                } else if (outputBox) {
-                  outputBox.textContent = "Le texte formaté apparaîtra ici après traitement par IA.";
-                }
-              });
-            });
-        });
     </script>
 </body>
 </html>
